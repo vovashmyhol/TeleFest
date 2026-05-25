@@ -1,0 +1,2022 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+  <title>TeleFest</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #060812;
+      --bg-2: #0b1020;
+      --surface: rgba(13, 18, 34, .82);
+      --surface-2: rgba(18, 25, 45, .78);
+      --surface-3: rgba(255, 255, 255, .065);
+      --line: rgba(255, 255, 255, .12);
+      --line-strong: rgba(255, 255, 255, .2);
+      --text: #f6f8fb;
+      --muted: #a9b6c7;
+      --quiet: #6f7d91;
+      --cyan: #15d9ff;
+      --green: #35f4a0;
+      --pink: #ff3fa6;
+      --amber: #ffbd3d;
+      --orange: #ff7438;
+      --blue: #2f7dff;
+      --violet: #775cff;
+      --danger: #ff456f;
+      --radius: 14px;
+      --radius-sm: 10px;
+      --shadow: 0 28px 90px rgba(0, 0, 0, .48);
+      --fast: cubic-bezier(.16, 1, .3, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      min-height: 100%;
+      background: var(--bg);
+    }
+
+    body {
+      margin: 0;
+      min-height: 100%;
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      background: var(--bg);
+      overflow-x: hidden;
+    }
+
+    button {
+      font: inherit;
+      color: inherit;
+      border: 0;
+      cursor: pointer;
+    }
+
+    .backdrop {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 18% 9%, rgba(21, 217, 255, .22), transparent 28%),
+        radial-gradient(circle at 78% 6%, rgba(255, 63, 166, .18), transparent 30%),
+        linear-gradient(145deg, #070913 0%, #0f1428 48%, #050713 100%);
+      z-index: -5;
+    }
+
+    .backdrop::before {
+      content: "";
+      position: absolute;
+      inset: -20% -10%;
+      background:
+        linear-gradient(112deg, transparent 0 42%, rgba(255,255,255,.07) 42.2% 42.6%, transparent 42.8% 100%),
+        repeating-linear-gradient(112deg, transparent 0 120px, rgba(21,217,255,.07) 122px 123px, transparent 125px 220px),
+        repeating-linear-gradient(18deg, transparent 0 96px, rgba(255,255,255,.05) 97px 98px, transparent 100px 190px);
+      transform: perspective(820px) rotateX(62deg) translateY(2%);
+      transform-origin: bottom;
+      opacity: .62;
+      animation: gridMove 8s linear infinite;
+    }
+
+    .backdrop::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: -34%;
+      width: min(1000px, 160vw);
+      height: 62%;
+      transform: translateX(-50%) perspective(720px) rotateX(66deg);
+      transform-origin: bottom;
+      background:
+        linear-gradient(90deg, transparent 0 41%, rgba(255,255,255,.22) 41.5% 42%, transparent 42.5% 57.5%, rgba(255,255,255,.22) 58% 58.5%, transparent 59%),
+        repeating-linear-gradient(0deg, rgba(255,189,61,.7) 0 26px, transparent 26px 68px),
+        linear-gradient(90deg, transparent, rgba(21,217,255,.2), transparent);
+      opacity: .22;
+      mask-image: linear-gradient(to top, #000, transparent 86%);
+      animation: roadMove .7s linear infinite;
+    }
+
+    .scan {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(90deg, rgba(21,217,255,.08), transparent 20% 80%, rgba(255,63,166,.07)),
+        repeating-linear-gradient(180deg, rgba(255,255,255,.026) 0 1px, transparent 1px 5px);
+      mix-blend-mode: screen;
+      opacity: .42;
+      z-index: 8;
+    }
+
+    .app {
+      width: min(1180px, 100%);
+      margin: 0 auto;
+      min-height: 100svh;
+      padding: max(18px, env(safe-area-inset-top)) 16px calc(96px + env(safe-area-inset-bottom));
+    }
+
+    .topbar {
+      min-height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .logo {
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      position: relative;
+      overflow: hidden;
+      color: #06111a;
+      font-size: .9rem;
+      font-weight: 950;
+      letter-spacing: .02em;
+      background: linear-gradient(135deg, var(--cyan), var(--green) 46%, var(--amber));
+      box-shadow: 0 0 34px rgba(21,217,255,.22);
+    }
+
+    .logo::after {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.55), transparent);
+      transform: rotate(24deg) translateX(-70%);
+      animation: logoGlint 3.6s var(--fast) infinite;
+    }
+
+    .brand-copy {
+      display: grid;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    .brand-copy b {
+      font-size: 1.03rem;
+      line-height: 1;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    .brand-copy span {
+      max-width: 54vw;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: var(--muted);
+      font-size: .78rem;
+    }
+
+    .balance {
+      min-height: 42px;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 8px 11px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.07);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
+      white-space: nowrap;
+    }
+
+    .balance i {
+      width: 23px;
+      height: 23px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 28%, #fff8b9, var(--amber) 58%, var(--orange));
+      box-shadow: 0 0 18px rgba(255,189,61,.28);
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(320px, .72fr);
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.035)),
+        var(--surface);
+      box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,.07);
+      overflow: hidden;
+    }
+
+    .hero-main {
+      min-height: 448px;
+      position: relative;
+      isolation: isolate;
+    }
+
+    .hero-main::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(120deg, rgba(21,217,255,.18), transparent 38%),
+        linear-gradient(235deg, rgba(255,63,166,.14), transparent 44%);
+      z-index: -2;
+    }
+
+    .hero-main::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(106deg, transparent 0 27%, rgba(255,255,255,.12) 27.3% 27.8%, transparent 28.1%),
+        repeating-linear-gradient(90deg, transparent 0 88px, rgba(255,255,255,.045) 89px 90px);
+      opacity: .62;
+      animation: heroLines 5s var(--fast) infinite;
+      z-index: -1;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      width: min(670px, 100%);
+      padding: clamp(24px, 5vw, 48px);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 32px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      color: #051018;
+      background: linear-gradient(90deg, var(--cyan), var(--green));
+      font-size: .73rem;
+      font-weight: 950;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      box-shadow: 0 0 24px rgba(21,217,255,.22);
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #061018;
+      box-shadow: 0 0 0 4px rgba(6,16,24,.14);
+    }
+
+    h1 {
+      margin: 18px 0 14px;
+      max-width: 8.4ch;
+      color: var(--text);
+      font-size: clamp(2.75rem, 8.8vw, 5.85rem);
+      line-height: .88;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+
+    .accent-text {
+      display: block;
+      color: transparent;
+      background: linear-gradient(92deg, var(--cyan), var(--green) 28%, var(--amber) 56%, var(--pink) 82%, #fff);
+      background-size: 170% 100%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      animation: colorRun 3.4s linear infinite;
+    }
+
+    .lead {
+      max-width: 560px;
+      margin: 0;
+      color: var(--muted);
+      font-size: clamp(1rem, 2.5vw, 1.16rem);
+      line-height: 1.55;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 26px;
+    }
+
+    .btn {
+      min-height: 48px;
+      border-radius: 13px;
+      padding: 13px 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      position: relative;
+      overflow: hidden;
+      font-weight: 900;
+      letter-spacing: .01em;
+      transition: transform .16s ease, filter .16s ease, opacity .16s ease;
+    }
+
+    .btn:disabled {
+      cursor: wait;
+      opacity: .62;
+    }
+
+    .btn:active {
+      transform: translateY(2px) scale(.992);
+    }
+
+    .btn svg {
+      width: 19px;
+      height: 19px;
+      flex: 0 0 auto;
+    }
+
+    .btn-primary {
+      color: #061018;
+      background: linear-gradient(90deg, var(--cyan), var(--green));
+      box-shadow: 0 14px 38px rgba(21,217,255,.2);
+    }
+
+    .btn-wild {
+      color: #fff;
+      background: linear-gradient(90deg, var(--pink), var(--orange));
+      box-shadow: 0 14px 38px rgba(255,63,166,.2);
+    }
+
+    .btn-ghost {
+      color: var(--text);
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.07);
+    }
+
+    .stat-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      width: min(520px, calc(100% - 48px));
+      position: absolute;
+      left: clamp(24px, 5vw, 48px);
+      bottom: 22px;
+      z-index: 3;
+    }
+
+    .stat {
+      min-height: 72px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: rgba(6,10,20,.54);
+      backdrop-filter: blur(12px);
+      padding: 12px;
+    }
+
+    .stat b {
+      display: block;
+      font-size: 1.18rem;
+      line-height: 1;
+    }
+
+    .stat span {
+      display: block;
+      color: var(--quiet);
+      font-size: .72rem;
+      margin-top: 7px;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+    }
+
+    .drum-scene {
+      position: absolute;
+      right: clamp(8px, 4vw, 58px);
+      bottom: 44px;
+      width: min(330px, 42vw);
+      aspect-ratio: 1;
+      z-index: 1;
+      filter: drop-shadow(0 28px 46px rgba(0,0,0,.45));
+      animation: drumArrive 1.15s var(--fast) both, drumFloat 3.8s ease-in-out 1.1s infinite;
+    }
+
+    .drum-ring {
+      position: absolute;
+      inset: 8%;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle, #0b1224 0 23%, transparent 24%),
+        conic-gradient(from 180deg, var(--cyan), var(--green), var(--amber), var(--orange), var(--pink), var(--violet), var(--cyan));
+      box-shadow:
+        inset 0 0 0 13px rgba(255,255,255,.12),
+        inset 0 0 44px rgba(255,255,255,.16),
+        0 0 60px rgba(21,217,255,.22);
+      animation: rotateSlow 7s linear infinite;
+    }
+
+    .drum-ring::before {
+      content: "";
+      position: absolute;
+      inset: 17%;
+      border-radius: 50%;
+      border: 2px dashed rgba(255,255,255,.36);
+    }
+
+    .drum-ring::after {
+      content: "";
+      position: absolute;
+      inset: 41%;
+      border-radius: 50%;
+      background: radial-gradient(circle, #fff, #84f3ff 44%, #0b1224 45%);
+      box-shadow: 0 0 28px rgba(21,217,255,.55);
+    }
+
+    .drum-shadow {
+      position: absolute;
+      left: 18%;
+      right: 18%;
+      bottom: 3%;
+      height: 22px;
+      border-radius: 50%;
+      background: rgba(0,0,0,.42);
+      filter: blur(8px);
+    }
+
+    .weekly {
+      min-height: 448px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      justify-content: space-between;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .section-head h2 {
+      margin: 0;
+      font-size: 1rem;
+      letter-spacing: .01em;
+    }
+
+    .pill {
+      min-height: 28px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      padding: 6px 9px;
+      color: #061018;
+      background: var(--amber);
+      font-size: .72rem;
+      font-weight: 950;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      white-space: nowrap;
+    }
+
+    .game-card {
+      position: relative;
+      min-height: 244px;
+      border: 1px solid var(--line-strong);
+      border-radius: 16px;
+      overflow: hidden;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      background: #11182a;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.28);
+    }
+
+    .game-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(180deg, rgba(6,8,18,.12), rgba(6,8,18,.26) 42%, rgba(6,8,18,.86)),
+        linear-gradient(90deg, rgba(21,217,255,.2), transparent 34%, rgba(255,63,166,.18));
+      z-index: 1;
+    }
+
+    .game-card::after {
+      content: "FH6";
+      position: absolute;
+      top: 4px;
+      right: 12px;
+      color: rgba(255,255,255,.22);
+      font-size: clamp(4rem, 14vw, 6rem);
+      line-height: 1;
+      font-weight: 950;
+      z-index: 2;
+    }
+
+    .game-card img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scale(1.02);
+      filter: saturate(1.1) contrast(1.04);
+    }
+
+    .game-card b,
+    .game-card span {
+      position: relative;
+      z-index: 3;
+      text-shadow: 0 8px 22px rgba(0,0,0,.34);
+    }
+
+    .game-card b {
+      font-size: 1.45rem;
+      text-transform: uppercase;
+      line-height: 1.02;
+    }
+
+    .game-card span {
+      margin-top: 7px;
+      color: rgba(255,255,255,.88);
+      font-weight: 750;
+    }
+
+    .timer {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 9px;
+    }
+
+    .timebox {
+      min-height: 64px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.065);
+      display: grid;
+      place-items: center;
+      text-align: center;
+    }
+
+    .timebox b {
+      display: block;
+      font-size: 1.22rem;
+      line-height: 1;
+    }
+
+    .timebox span {
+      display: block;
+      margin-top: 5px;
+      color: var(--quiet);
+      font-size: .7rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.08fr) minmax(300px, .82fr);
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    .machine {
+      padding: 18px;
+    }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+      margin-bottom: 14px;
+      padding: 5px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.045);
+    }
+
+    .tab {
+      min-height: 46px;
+      border-radius: 12px;
+      color: var(--muted);
+      background: transparent;
+      font-weight: 900;
+      transition: background .18s ease, color .18s ease, transform .18s ease;
+    }
+
+    .tab.active {
+      color: #061018;
+      background: linear-gradient(90deg, var(--cyan), var(--green));
+      box-shadow: 0 0 26px rgba(21,217,255,.2);
+    }
+
+    .spin-window {
+      min-height: 386px;
+      position: relative;
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 18px;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 50% -18%, rgba(255,255,255,.22), transparent 24%),
+        linear-gradient(180deg, rgba(84,35,154,.96), rgba(119,56,194,.94) 48%, rgba(79,30,150,.98));
+      box-shadow: inset 0 0 70px rgba(0,0,0,.28), 0 24px 64px rgba(81,34,151,.22);
+      isolation: isolate;
+    }
+
+    .spin-window::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(96deg, transparent 0 17%, rgba(255,255,255,.1) 17.5% 18%, transparent 18.5% 100%),
+        repeating-linear-gradient(155deg, rgba(255,255,255,.05) 0 2px, transparent 2px 28px);
+      opacity: .42;
+      animation: heroLines 4.2s var(--fast) infinite;
+      z-index: -1;
+    }
+
+    .wheel-badge {
+      width: min(220px, 52vw);
+      min-height: 82px;
+      margin: 12px auto 0;
+      position: relative;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      color: #fff;
+      text-transform: uppercase;
+      filter: drop-shadow(0 12px 16px rgba(0,0,0,.36));
+      z-index: 5;
+    }
+
+    .wheel-badge::before {
+      content: "";
+      position: absolute;
+      width: 88px;
+      height: 88px;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle, #152b55 0 44%, transparent 45%),
+        conic-gradient(var(--cyan), var(--pink), var(--amber), var(--cyan));
+      box-shadow: 0 0 0 5px rgba(255,255,255,.16), 0 0 28px rgba(21,217,255,.38);
+      animation: rotateSlow 7s linear infinite;
+      z-index: -1;
+    }
+
+    .wheel-badge b {
+      display: block;
+      font-size: clamp(1.45rem, 5vw, 2.25rem);
+      line-height: .8;
+      transform: rotate(-3deg);
+      text-shadow: 0 3px 0 rgba(0,0,0,.45);
+    }
+
+    .wheel-badge span {
+      display: inline-block;
+      margin-top: 4px;
+      padding: 4px 9px;
+      border: 2px solid rgba(255,255,255,.9);
+      border-radius: 7px;
+      background: #12152c;
+      font-size: .78rem;
+      font-weight: 950;
+      letter-spacing: .04em;
+      transform: rotate(-2deg);
+      box-shadow: 0 3px 0 rgba(0,0,0,.42);
+    }
+
+    .reel-stage {
+      position: relative;
+      min-height: 264px;
+      margin: 8px 16px 18px;
+      padding: 0 40px;
+      display: grid;
+      align-items: center;
+    }
+
+    .reel-stage::before,
+    .reel-stage::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 15px;
+      background: rgba(6,8,18,.72);
+      border-block: 2px solid rgba(255,255,255,.55);
+      z-index: 4;
+    }
+
+    .reel-stage::before { top: 26px; }
+    .reel-stage::after { bottom: 26px; }
+
+    .selectors {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 8;
+    }
+
+    .selectors::before,
+    .selectors::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      width: 0;
+      height: 0;
+      transform: translateY(-50%);
+      filter: drop-shadow(0 3px 0 rgba(0,0,0,.45));
+    }
+
+    .selectors::before {
+      left: 8px;
+      border-top: 24px solid transparent;
+      border-bottom: 24px solid transparent;
+      border-left: 0;
+      border-right: 24px solid #fff;
+    }
+
+    .selectors::after {
+      right: 8px;
+      border-top: 24px solid transparent;
+      border-bottom: 24px solid transparent;
+      border-right: 0;
+      border-left: 24px solid #fff;
+    }
+
+    .reels {
+      height: 248px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      position: relative;
+      z-index: 3;
+    }
+
+    .reel-col {
+      height: 248px;
+      position: relative;
+      overflow: hidden;
+      border-radius: 10px;
+      border-inline: 2px solid rgba(0,0,0,.34);
+      background: rgba(3,6,14,.28);
+    }
+
+    .reel {
+      display: grid;
+      gap: 10px;
+      padding-block: 64px;
+      transform: translate3d(0,0,0);
+      will-change: transform, filter;
+    }
+
+    .prize {
+      height: 104px;
+      border-radius: 13px;
+      border: 4px solid rgba(255,255,255,.76);
+      outline: 4px solid rgba(186, 88, 255, .62);
+      background: var(--card-bg);
+      display: grid;
+      grid-template-columns: 44px 1fr;
+      align-items: center;
+      gap: 8px;
+      padding: 11px;
+      position: relative;
+      overflow: hidden;
+      color: #fff;
+      box-shadow: inset 0 0 0 2px rgba(0,0,0,.18), 0 10px 20px rgba(0,0,0,.22);
+    }
+
+    .prize::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(135deg, rgba(255,255,255,.16) 0 7px, transparent 7px 18px);
+      opacity: .34;
+    }
+
+    .prize i {
+      width: 44px;
+      height: 44px;
+      border-radius: 13px;
+      display: grid;
+      place-items: center;
+      position: relative;
+      z-index: 1;
+      background: rgba(255,255,255,.2);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.28);
+    }
+
+    .prize svg {
+      width: 25px;
+      height: 25px;
+    }
+
+    .prize span {
+      position: relative;
+      z-index: 1;
+      color: #fff;
+      font-size: clamp(.9rem, 2.4vw, 1.24rem);
+      font-weight: 1000;
+      line-height: .96;
+      text-transform: uppercase;
+      text-shadow: 0 3px 0 rgba(0,0,0,.2);
+    }
+
+    .prize small {
+      display: block;
+      margin-bottom: 4px;
+      font-size: .72rem;
+      letter-spacing: .08em;
+      opacity: .9;
+    }
+
+    .common { --card-bg: linear-gradient(135deg, #28ae5e, #43d86f); }
+    .rare { --card-bg: linear-gradient(135deg, #168bdd, #32d7ff); }
+    .epic { --card-bg: linear-gradient(135deg, #7335d5, #bd43ff); }
+    .legendary { --card-bg: linear-gradient(135deg, #d78a1d, #ffe15f); }
+
+    .spin-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .result {
+      min-height: 78px;
+      margin-top: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 13px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.055);
+    }
+
+    .result b {
+      display: block;
+      font-size: .95rem;
+    }
+
+    .result span {
+      display: block;
+      margin-top: 4px;
+      color: var(--quiet);
+      font-size: .8rem;
+    }
+
+    .result-icon,
+    .mini {
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, rgba(21,217,255,.18), rgba(255,63,166,.16));
+      border: 1px solid rgba(255,255,255,.08);
+    }
+
+    .result-icon {
+      width: 50px;
+      height: 50px;
+      flex: 0 0 auto;
+    }
+
+    .result-icon svg,
+    .mini svg {
+      width: 26px;
+      height: 26px;
+    }
+
+    .side {
+      display: grid;
+      gap: 18px;
+    }
+
+    .feed,
+    .garage {
+      padding: 16px;
+    }
+
+    .feed-list {
+      display: grid;
+      gap: 9px;
+    }
+
+    .feed-item,
+    .garage-row {
+      min-height: 58px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.1);
+      background: rgba(255,255,255,.052);
+    }
+
+    .mini {
+      width: 40px;
+      height: 40px;
+      flex: 0 0 auto;
+    }
+
+    .feed-item b,
+    .garage-row b {
+      display: block;
+      font-size: .86rem;
+    }
+
+    .feed-item span,
+    .garage-row span {
+      display: block;
+      margin-top: 3px;
+      color: var(--quiet);
+      font-size: .76rem;
+    }
+
+    .inventory {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 9px;
+      margin-top: 12px;
+    }
+
+    .slot {
+      aspect-ratio: 1;
+      min-height: 72px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.1);
+      background: rgba(255,255,255,.052);
+      display: grid;
+      place-items: center;
+    }
+
+    .slot svg {
+      width: 28px;
+      height: 28px;
+      color: var(--quiet);
+    }
+
+    .slot.filled {
+      color: var(--text);
+      background: linear-gradient(135deg, rgba(21,217,255,.12), rgba(255,63,166,.1));
+    }
+
+    .bottom-nav {
+      position: fixed;
+      left: 50%;
+      bottom: max(12px, env(safe-area-inset-bottom));
+      transform: translateX(-50%);
+      width: min(520px, calc(100% - 24px));
+      min-height: 64px;
+      z-index: 30;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 5px;
+      padding: 6px;
+      border: 1px solid rgba(255,255,255,.15);
+      border-radius: 18px;
+      background: rgba(6, 9, 18, .82);
+      backdrop-filter: blur(18px);
+      box-shadow: 0 18px 60px rgba(0,0,0,.44);
+    }
+
+    .bottom-nav button {
+      border-radius: 14px;
+      background: transparent;
+      color: var(--quiet);
+      display: grid;
+      gap: 3px;
+      place-items: center;
+      font-size: .67rem;
+      font-weight: 850;
+    }
+
+    .bottom-nav svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .bottom-nav button.active {
+      color: #061018;
+      background: linear-gradient(90deg, var(--cyan), var(--green));
+    }
+
+    .flash {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0;
+      z-index: 40;
+      background: radial-gradient(circle at 50% 43%, rgba(255,255,255,.96), rgba(21,217,255,.28) 28%, transparent 62%);
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      top: max(15px, env(safe-area-inset-top));
+      width: min(430px, calc(100% - 28px));
+      min-height: 70px;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 12px;
+      transform: translateX(-50%) translateY(-140%);
+      transition: transform .42s var(--fast);
+      z-index: 60;
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 16px;
+      background: rgba(8, 12, 24, .92);
+      backdrop-filter: blur(18px);
+      box-shadow: var(--shadow);
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .toast b {
+      display: block;
+      font-size: .92rem;
+    }
+
+    .toast span {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: .8rem;
+    }
+
+    .win-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 70;
+      display: grid;
+      place-items: center;
+      padding: 18px;
+      pointer-events: none;
+      opacity: 0;
+      overflow: hidden;
+      background: rgba(3, 5, 12, .72);
+      backdrop-filter: blur(16px);
+      transition: opacity .22s ease;
+    }
+
+    .win-modal.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .paint-fill {
+      position: absolute;
+      inset: -18%;
+      transform: translateX(-115%) skewX(-13deg);
+      background:
+        linear-gradient(90deg, var(--cyan), var(--green) 24%, var(--amber) 48%, var(--pink) 72%, var(--violet));
+      filter: saturate(1.25);
+      z-index: 0;
+    }
+
+    .win-modal.show .paint-fill {
+      animation: paintSweep .82s var(--fast) forwards;
+    }
+
+    .win-card {
+      width: min(560px, 100%);
+      min-height: 430px;
+      position: relative;
+      z-index: 1;
+      border-radius: 24px;
+      border: 1px solid rgba(255,255,255,.32);
+      background:
+        radial-gradient(circle at 50% 0, rgba(255,255,255,.18), transparent 34%),
+        linear-gradient(160deg, rgba(17,24,48,.94), rgba(8,12,25,.96));
+      box-shadow: 0 34px 110px rgba(0,0,0,.56), inset 0 1px 0 rgba(255,255,255,.14);
+      overflow: hidden;
+      transform: translateY(18px) scale(.94);
+      opacity: 0;
+    }
+
+    .win-modal.show .win-card {
+      animation: winPop .58s var(--fast) .34s forwards;
+    }
+
+    .win-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        repeating-linear-gradient(135deg, rgba(255,255,255,.06) 0 8px, transparent 8px 22px),
+        linear-gradient(90deg, transparent, rgba(255,255,255,.12), transparent);
+      opacity: .58;
+    }
+
+    .win-top {
+      position: relative;
+      z-index: 1;
+      min-height: 112px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 22px 18px 10px;
+      text-transform: uppercase;
+    }
+
+    .win-top span {
+      color: var(--muted);
+      font-size: .78rem;
+      font-weight: 950;
+      letter-spacing: .12em;
+    }
+
+    .win-top b {
+      display: block;
+      margin-top: 4px;
+      font-size: clamp(2rem, 10vw, 4.5rem);
+      line-height: .82;
+      text-shadow: 0 5px 0 rgba(0,0,0,.32);
+    }
+
+    .win-prize {
+      position: relative;
+      z-index: 1;
+      width: min(350px, calc(100% - 42px));
+      min-height: 176px;
+      margin: 4px auto 18px;
+      border-radius: 20px;
+      border: 5px solid rgba(255,255,255,.84);
+      outline: 5px solid rgba(194,93,255,.62);
+      background: var(--win-bg, linear-gradient(135deg, #168bdd, #32d7ff));
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 20px;
+      box-shadow: 0 22px 48px rgba(0,0,0,.32), inset 0 0 0 2px rgba(0,0,0,.16);
+    }
+
+    .win-prize::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 14px;
+      background: repeating-linear-gradient(135deg, rgba(255,255,255,.18) 0 9px, transparent 9px 22px);
+      opacity: .42;
+    }
+
+    .win-prize i,
+    .win-prize strong,
+    .win-prize small {
+      position: relative;
+      z-index: 1;
+    }
+
+    .win-prize i {
+      width: 66px;
+      height: 66px;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 12px;
+      background: rgba(255,255,255,.2);
+    }
+
+    .win-prize svg {
+      width: 38px;
+      height: 38px;
+    }
+
+    .win-prize strong {
+      display: block;
+      color: #fff;
+      font-size: clamp(1.4rem, 7vw, 2.6rem);
+      line-height: .92;
+      text-transform: uppercase;
+      text-shadow: 0 4px 0 rgba(0,0,0,.24);
+    }
+
+    .win-prize small {
+      display: block;
+      margin-top: 8px;
+      color: rgba(255,255,255,.86);
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    .win-actions {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      padding: 0 18px 18px;
+    }
+
+    .shake {
+      animation: shake .38s linear;
+    }
+
+    canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 50;
+    }
+
+    @keyframes gridMove {
+      from { transform: perspective(820px) rotateX(62deg) translateY(0); }
+      to { transform: perspective(820px) rotateX(62deg) translateY(140px); }
+    }
+
+    @keyframes roadMove {
+      from { background-position: 0 0, 0 0, 0 0; }
+      to { background-position: 0 0, 0 68px, 0 0; }
+    }
+
+    @keyframes logoGlint {
+      0%, 48% { transform: rotate(24deg) translateX(-75%); }
+      66%, 100% { transform: rotate(24deg) translateX(75%); }
+    }
+
+    @keyframes heroLines {
+      0%, 100% { transform: translateX(-26px); opacity: .42; }
+      50% { transform: translateX(26px); opacity: .78; }
+    }
+
+    @keyframes colorRun {
+      from { background-position: 0 50%; }
+      to { background-position: 170% 50%; }
+    }
+
+    @keyframes drumArrive {
+      from { transform: translate(60vw, -38vh) rotate(540deg) scale(.64); opacity: 0; }
+      to { transform: translate(0, 0) rotate(-12deg) scale(1); opacity: 1; }
+    }
+
+    @keyframes drumFloat {
+      0%, 100% { translate: 0 0; }
+      50% { translate: 0 -12px; }
+    }
+
+    @keyframes rotateSlow {
+      to { rotate: 360deg; }
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-7px); }
+      40% { transform: translateX(6px); }
+      60% { transform: translateX(-4px); }
+      80% { transform: translateX(3px); }
+    }
+
+    @keyframes paintSweep {
+      0% { transform: translateX(-115%) skewX(-13deg); }
+      58% { transform: translateX(0) skewX(-13deg); }
+      100% { transform: translateX(115%) skewX(-13deg); }
+    }
+
+    @keyframes winPop {
+      to { transform: translateY(0) scale(1); opacity: 1; }
+    }
+
+    @media (max-width: 900px) {
+      .hero,
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-main,
+      .weekly {
+        min-height: 418px;
+      }
+
+      .drum-scene {
+        width: min(300px, 56vw);
+        opacity: .9;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .app {
+        padding-inline: 12px;
+      }
+
+      .brand-copy span,
+      .balance span {
+        display: none;
+      }
+
+      .hero-main {
+        min-height: 500px;
+      }
+
+      .hero-content {
+        padding: 22px;
+      }
+
+      h1 {
+        font-size: clamp(2.55rem, 13vw, 4rem);
+      }
+
+      .hero-actions,
+      .spin-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+
+      .btn {
+        width: 100%;
+      }
+
+      .stat-row {
+        width: calc(100% - 44px);
+        left: 22px;
+        grid-template-columns: 1fr;
+        bottom: 18px;
+      }
+
+      .stat {
+        min-height: 58px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+
+      .stat span {
+        margin-top: 0;
+        text-align: right;
+      }
+
+      .drum-scene {
+        right: -18px;
+        bottom: 122px;
+        width: 230px;
+      }
+
+      .spin-window {
+        min-height: 352px;
+      }
+
+      .wheel-badge {
+        min-height: 68px;
+      }
+
+      .reel-stage {
+        margin-inline: 8px;
+        padding-inline: 28px;
+      }
+
+      .reels {
+        gap: 7px;
+      }
+
+      .prize {
+        height: 96px;
+        grid-template-columns: 1fr;
+        gap: 5px;
+        padding: 8px;
+        text-align: center;
+      }
+
+      .prize i {
+        width: 34px;
+        height: 34px;
+      }
+
+      .prize span {
+        font-size: .78rem;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: .001ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="backdrop" aria-hidden="true"></div>
+  <div class="scan" aria-hidden="true"></div>
+  <canvas id="confetti"></canvas>
+  <div class="flash" id="flash"></div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite">
+    <div class="result-icon" id="toastIcon"></div>
+    <div>
+      <b id="toastTitle">TeleFest</b>
+      <span id="toastText">Фестиваль готов</span>
+    </div>
+  </div>
+
+  <div class="win-modal" id="winModal" aria-hidden="true">
+    <div class="paint-fill"></div>
+    <div class="win-card" role="dialog" aria-modal="true" aria-labelledby="winTitle">
+      <div class="win-top">
+        <div>
+          <span id="winMode">Super Wheelspin</span>
+          <b id="winTitle">Win</b>
+        </div>
+      </div>
+      <div class="win-prize" id="winPrize">
+        <i id="winIcon"></i>
+        <strong id="winName">Prize</strong>
+        <small id="winValue">+0 tickets</small>
+      </div>
+      <div class="win-actions">
+        <button class="btn btn-ghost" id="closeWin">Забрать</button>
+        <button class="btn btn-primary" id="againWin">Крутить еще</button>
+      </div>
+    </div>
+  </div>
+
+  <main class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo">TF</div>
+        <div class="brand-copy">
+          <b>TeleFest</b>
+          <span>Подарки, игры и фестивальные спины</span>
+        </div>
+      </div>
+      <div class="balance" aria-label="Баланс">
+        <i></i>
+        <b id="balance">2 450</b>
+        <span>tickets</span>
+      </div>
+    </header>
+
+    <section class="hero" id="home">
+      <div class="panel hero-main">
+        <div class="hero-content">
+          <div class="eyebrow"><span class="dot"></span> Festival Drop Live</div>
+          <h1>TeleFest <span class="accent-text">Gift Rush</span></h1>
+          <p class="lead">Мини-апп с барабаном, аккуратными гоночными эффектами, обычными спинами, супер-спинами и недельным главным призом.</p>
+          <div class="hero-actions">
+            <button class="btn btn-primary" id="heroSpin" aria-label="Обычный спин">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 5v14l11-7L8 5Z" fill="currentColor"/></svg>
+              Обычный спин
+            </button>
+            <button class="btn btn-wild" id="heroSuper" aria-label="Супер спин">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2l2.7 6.7L22 12l-7.3 3.3L12 22l-2.7-6.7L2 12l7.3-3.3L12 2Z" fill="currentColor"/></svg>
+              Супер спин
+            </button>
+          </div>
+        </div>
+
+        <div class="drum-scene" aria-hidden="true">
+          <div class="drum-ring"></div>
+          <div class="drum-shadow"></div>
+        </div>
+
+        <div class="stat-row" aria-label="Статистика фестиваля">
+          <div class="stat"><b>18.4K</b><span>призов</span></div>
+          <div class="stat"><b>x5</b><span>super fx</span></div>
+          <div class="stat"><b>24/7</b><span>live drops</span></div>
+        </div>
+      </div>
+
+      <aside class="panel weekly" id="weekly">
+        <div>
+          <div class="section-head">
+            <h2>Приз недели</h2>
+            <span class="pill">Steam key</span>
+          </div>
+          <div class="game-card">
+            <img src="forzaBnner" alt="Forza Horizon 6 banner" />
+            <b>Forza Horizon 6</b>
+            <span>Ключ Steam в недельном розыгрыше</span>
+          </div>
+        </div>
+        <div class="timer">
+          <div class="timebox"><div><b id="days">06</b><span>дней</span></div></div>
+          <div class="timebox"><div><b id="hours">18</b><span>часов</span></div></div>
+          <div class="timebox"><div><b id="mins">44</b><span>минут</span></div></div>
+        </div>
+        <button class="btn btn-primary" id="weeklyBtn">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 3h10v4h3l-2 6a6.3 6.3 0 0 1-5 4.1V20h3v2H8v-2h3v-2.9A6.3 6.3 0 0 1 6 13L4 7h3V3Zm2 2v7a3 3 0 1 0 6 0V5H9Z" fill="currentColor"/></svg>
+          Участвовать
+        </button>
+      </aside>
+    </section>
+
+    <section class="grid" id="spins">
+      <div class="panel machine">
+        <div class="section-head">
+          <h2>Спин-машина</h2>
+          <span class="pill" id="modePill">x1</span>
+        </div>
+        <div class="tabs" role="tablist" aria-label="Тип спина">
+          <button class="tab active" data-mode="normal">Обычный</button>
+          <button class="tab" data-mode="super">Супер</button>
+        </div>
+        <div class="spin-window" id="spinWindow">
+          <div class="wheel-badge"><div><b id="wheelBadgeTitle">Super</b><span>Wheelspin</span></div></div>
+          <div class="reel-stage">
+            <div class="selectors"></div>
+            <div class="reels" id="reels">
+              <div class="reel-col"><div class="reel" data-reel="0"></div></div>
+              <div class="reel-col"><div class="reel" data-reel="1"></div></div>
+              <div class="reel-col"><div class="reel" data-reel="2"></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="spin-actions">
+          <button class="btn btn-primary" id="spinBtn">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 5v14l11-7L8 5Z" fill="currentColor"/></svg>
+            Спин за 120
+          </button>
+          <button class="btn btn-wild" id="superBtn">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2l2.7 6.7L22 12l-7.3 3.3L12 22l-2.7-6.7L2 12l7.3-3.3L12 2Z" fill="currentColor"/></svg>
+            Супер за 420
+          </button>
+        </div>
+        <div class="result">
+          <div>
+            <b id="resultName">Барабан готов</b>
+            <span id="resultMeta">Выбери режим и запускай дроп</span>
+          </div>
+          <div class="result-icon" id="resultIcon"></div>
+        </div>
+      </div>
+
+      <div class="side">
+        <aside class="panel feed" id="feed">
+          <div class="section-head">
+            <h2>Живые выигрыши</h2>
+            <span class="pill">Live</span>
+          </div>
+          <div class="feed-list" id="feedList"></div>
+        </aside>
+
+        <aside class="panel garage" id="garage">
+          <div class="section-head">
+            <h2>Гараж подарков</h2>
+            <span class="pill" id="itemsCount">0/9</span>
+          </div>
+          <div class="garage-row">
+            <div class="mini" id="streakIcon"></div>
+            <div>
+              <b>Серия побед</b>
+              <span id="streak">0 спинов подряд</span>
+            </div>
+          </div>
+          <div class="inventory" id="inventory"></div>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <nav class="bottom-nav" aria-label="Навигация">
+    <button class="active" data-jump="home"><span data-icon="speed"></span><span>Фест</span></button>
+    <button data-jump="spins"><span data-icon="spin"></span><span>Спины</span></button>
+    <button data-jump="weekly"><span data-icon="cup"></span><span>Приз</span></button>
+    <button data-jump="garage"><span data-icon="gift"></span><span>Гараж</span></button>
+  </nav>
+
+  <script>
+    const icons = {
+      ticket: '<svg viewBox="0 0 24 24" fill="none"><path d="M4 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3a2 2 0 0 0 0 4v3a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-3a2 2 0 0 0 0-4V7Z" stroke="currentColor" stroke-width="2"/><path d="M9 8v8M15 8v8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+      chat: '<svg viewBox="0 0 24 24" fill="none"><path d="M5 6h14v10H9l-4 4V6Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M8 10h8M8 13h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+      bolt: '<svg viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h7l-1 8 10-13h-7l1-7Z" fill="currentColor"/></svg>',
+      game: '<svg viewBox="0 0 24 24" fill="none"><path d="M7 9h10a4 4 0 0 1 3.8 2.7l1 3A3.2 3.2 0 0 1 18.7 19c-1 0-1.9-.5-2.5-1.3L15 16H9l-1.2 1.7A3.2 3.2 0 0 1 2.2 14.7l1-3A4 4 0 0 1 7 9Z" stroke="currentColor" stroke-width="2"/><path d="M7 13h4M9 11v4M16.5 12.5h.01M18.5 14.5h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+      gift: '<svg viewBox="0 0 24 24" fill="none"><path d="M4 10h16v10H4V10ZM3 6h18v4H3V6Z" stroke="currentColor" stroke-width="2"/><path d="M12 6v14M8.5 6C7 6 6 5.2 6 4.2S7.1 2.5 8.3 3.2C9.8 4 12 6 12 6s2.2-2 3.7-2.8c1.2-.7 2.3 0 2.3 1s-1 1.8-2.5 1.8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+      gem: '<svg viewBox="0 0 24 24" fill="none"><path d="M7 3h10l4 6-9 12L3 9l4-6Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M3 9h18M8 9l4 12 4-12M9 3l-1 6M15 3l1 6" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>',
+      star: '<svg viewBox="0 0 24 24" fill="none"><path d="M12 2l2.7 6.7L22 12l-7.3 3.3L12 22l-2.7-6.7L2 12l7.3-3.3L12 2Z" fill="currentColor"/></svg>',
+      key: '<svg viewBox="0 0 24 24" fill="none"><path d="M14 8a5 5 0 1 0 1.2 5.2L22 20v-4h-3v-3h-3l-1-1" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 12h.01" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>',
+      cup: '<svg viewBox="0 0 24 24" fill="none"><path d="M7 3h10v4h3l-2 6a6.3 6.3 0 0 1-5 4.1V20h3v2H8v-2h3v-2.9A6.3 6.3 0 0 1 6 13L4 7h3V3Zm2 2v7a3 3 0 1 0 6 0V5H9Z" fill="currentColor"/></svg>',
+      speed: '<svg viewBox="0 0 24 24" fill="none"><path d="M4 14a8 8 0 0 1 16 0v4H4v-4Z" stroke="currentColor" stroke-width="2"/><path d="m12 14 5-5M5 18h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+      spin: '<svg viewBox="0 0 24 24" fill="none"><path d="M12 3a9 9 0 1 0 9 9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M18 3h3v3M21 3l-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M12 8v8M8 12h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+      empty: '<svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'
+    };
+
+    const prizes = [
+      { name: "CR 35,000", label: "credits", icon: "ticket", rarity: "common", value: 35 },
+      { name: "CR 45,000", label: "credits", icon: "ticket", rarity: "common", value: 45 },
+      { name: "CR 90,000", label: "credits", icon: "bolt", rarity: "rare", value: 90 },
+      { name: "M-B X-Class", label: "festival car", icon: "game", rarity: "rare", value: 160 },
+      { name: "CR 175,000", label: "big credits", icon: "gem", rarity: "epic", value: 175 },
+      { name: "CR 200,000", label: "big credits", icon: "gem", rarity: "epic", value: 200 },
+      { name: "Super Ticket", label: "super spin", icon: "star", rarity: "legendary", value: 520 },
+      { name: "Steam Key Chance", label: "Forza Horizon 6", icon: "key", rarity: "legendary", value: 900 }
+    ];
+
+    const state = {
+      balance: 2450,
+      mode: "normal",
+      spinning: false,
+      streak: 0,
+      inventory: []
+    };
+
+    const $ = (id) => document.getElementById(id);
+    const reels = [...document.querySelectorAll(".reel")];
+    const spinWindow = $("spinWindow");
+    const wheelBadgeTitle = $("wheelBadgeTitle");
+    const balance = $("balance");
+    const modePill = $("modePill");
+    const resultName = $("resultName");
+    const resultMeta = $("resultMeta");
+    const resultIcon = $("resultIcon");
+    const inventory = $("inventory");
+    const itemsCount = $("itemsCount");
+    const streak = $("streak");
+    const toast = $("toast");
+    const toastIcon = $("toastIcon");
+    const toastTitle = $("toastTitle");
+    const toastText = $("toastText");
+    const flash = $("flash");
+    const feedList = $("feedList");
+    const winModal = $("winModal");
+    const winMode = $("winMode");
+    const winPrize = $("winPrize");
+    const winIcon = $("winIcon");
+    const winName = $("winName");
+    const winValue = $("winValue");
+    const canvas = $("confetti");
+    const ctx = canvas.getContext("2d");
+    let particles = [];
+    let toastTimer = 0;
+
+    function setIcon(target, icon) {
+      target.innerHTML = icons[icon] || icons.gift;
+    }
+
+    function prizeBg(prize) {
+      const map = {
+        common: "linear-gradient(135deg, #28ae5e, #43d86f)",
+        rare: "linear-gradient(135deg, #168bdd, #32d7ff)",
+        epic: "linear-gradient(135deg, #7335d5, #bd43ff)",
+        legendary: "linear-gradient(135deg, #d78a1d, #ffe15f)"
+      };
+      return map[prize.rarity] || map.rare;
+    }
+
+    function vibrate(pattern) {
+      if ("vibrate" in navigator) navigator.vibrate(pattern);
+    }
+
+    function format(value) {
+      return new Intl.NumberFormat("ru-RU").format(value);
+    }
+
+    function resizeCanvas() {
+      const dpr = Math.min(devicePixelRatio || 1, 2);
+      canvas.width = Math.floor(innerWidth * dpr);
+      canvas.height = Math.floor(innerHeight * dpr);
+      canvas.style.width = innerWidth + "px";
+      canvas.style.height = innerHeight + "px";
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    function buildReels() {
+      reels.forEach((reel, reelIndex) => {
+        reel.innerHTML = "";
+        const shifted = prizes.slice(reelIndex).concat(prizes.slice(0, reelIndex));
+        Array.from({ length: 7 }, () => shifted).flat().forEach((prize) => {
+          const item = document.createElement("div");
+          item.className = `prize ${prize.rarity}`;
+          item.innerHTML = `<i>${icons[prize.icon]}</i><span><small>${prize.label}</small>${prize.name}</span>`;
+          reel.appendChild(item);
+        });
+      });
+    }
+
+    function setMode(mode) {
+      state.mode = mode;
+      document.querySelectorAll(".tab").forEach((tab) => tab.classList.toggle("active", tab.dataset.mode === mode));
+      modePill.textContent = mode === "super" ? "x5 fx" : "x1";
+      wheelBadgeTitle.textContent = mode === "super" ? "Super" : "Wheel";
+      vibrate(12);
+    }
+
+    function weightedPrize(superSpin) {
+      const pool = superSpin
+        ? [...prizes.slice(2), prizes[5], prizes[6], prizes[7], prizes[7]]
+        : [...prizes, prizes[0], prizes[1], prizes[2]];
+      return pool[Math.floor(Math.random() * pool.length)];
+    }
+
+    function renderBalance() {
+      balance.textContent = format(state.balance);
+    }
+
+    function showToast(icon, title, text) {
+      setIcon(toastIcon, icon);
+      toastTitle.textContent = title;
+      toastText.textContent = text;
+      toast.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove("show"), 2600);
+    }
+
+    function addFeed(prize, superSpin) {
+      const names = ["Max", "TurboKid", "Nika", "DriftMan", "Alex", "Vera"];
+      const item = document.createElement("div");
+      item.className = "feed-item";
+      item.innerHTML = `
+        <div class="mini">${icons[prize.icon]}</div>
+        <div>
+          <b>${names[Math.floor(Math.random() * names.length)]} забрал ${prize.name}</b>
+          <span>${superSpin ? "Супер спин" : "Обычный спин"} только что</span>
+        </div>
+      `;
+      feedList.prepend(item);
+      while (feedList.children.length > 4) feedList.lastElementChild.remove();
+    }
+
+    function updateInventory(prize) {
+      if (prize) state.inventory.unshift(prize);
+      state.inventory = state.inventory.slice(0, 9);
+      inventory.innerHTML = "";
+      for (let i = 0; i < 9; i++) {
+        const cell = document.createElement("div");
+        cell.className = "slot" + (state.inventory[i] ? " filled" : "");
+        cell.innerHTML = state.inventory[i] ? icons[state.inventory[i].icon] : icons.empty;
+        inventory.appendChild(cell);
+      }
+      itemsCount.textContent = `${state.inventory.length}/9`;
+      streak.textContent = `${state.streak} спинов подряд`;
+    }
+
+    function flashScreen(power) {
+      flash.animate([
+        { opacity: 0 },
+        { opacity: power ? .92 : .55 },
+        { opacity: 0 }
+      ], { duration: power ? 760 : 460, easing: "cubic-bezier(.16,1,.3,1)" });
+    }
+
+    function burst(count, power = 1) {
+      const colors = ["#15d9ff", "#35f4a0", "#ff3fa6", "#ffbd3d", "#ff7438", "#775cff"];
+      for (let i = 0; i < count; i++) {
+        particles.push({
+          x: innerWidth / 2 + (Math.random() - .5) * 150,
+          y: innerHeight * .35 + (Math.random() - .5) * 70,
+          vx: (Math.random() - .5) * 11 * power,
+          vy: (Math.random() * -9 - 3) * power,
+          size: Math.random() * 7 + 4,
+          rot: Math.random() * Math.PI,
+          spin: (Math.random() - .5) * .3,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          life: 110 + Math.random() * 65
+        });
+      }
+    }
+
+    function drawParticles() {
+      ctx.clearRect(0, 0, innerWidth, innerHeight);
+      particles = particles.filter((p) => p.life > 0);
+      particles.forEach((p) => {
+        p.life -= 1;
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += .18;
+        p.rot += p.spin;
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rot);
+        ctx.fillStyle = p.color;
+        ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * .58);
+        ctx.restore();
+      });
+      requestAnimationFrame(drawParticles);
+    }
+
+    function showWinModal(prizesWon, superSpin) {
+      const best = prizesWon.reduce((top, prize) => prize.value > top.value ? prize : top, prizesWon[0]);
+      const total = prizesWon.reduce((sum, prize) => sum + prize.value, 0);
+      winMode.textContent = superSpin ? "Super Wheelspin" : "Wheelspin";
+      winName.textContent = best.name;
+      winValue.textContent = `+${total} tickets`;
+      winPrize.style.setProperty("--win-bg", prizeBg(best));
+      setIcon(winIcon, best.icon);
+      winModal.classList.remove("show");
+      winModal.setAttribute("aria-hidden", "false");
+      requestAnimationFrame(() => winModal.classList.add("show"));
+    }
+
+    function hideWinModal() {
+      winModal.classList.remove("show");
+      winModal.setAttribute("aria-hidden", "true");
+    }
+
+    function legacySpin(superSpin = state.mode === "super") {
+      if (state.spinning) return;
+      const price = superSpin ? 420 : 120;
+      if (state.balance < price) {
+        showToast("ticket", "Не хватает tickets", "Попробуй обычный спин или забери бонус");
+        vibrate([28, 35, 28]);
+        return;
+      }
+
+      state.spinning = true;
+      state.balance -= price;
+      renderBalance();
+      setMode(superSpin ? "super" : "normal");
+      document.querySelectorAll(".btn").forEach((button) => button.disabled = true);
+      spinWindow.classList.add("shake");
+      setTimeout(() => spinWindow.classList.remove("shake"), 420);
+      vibrate(superSpin ? [18, 28, 36, 28, 70] : [16, 26, 16]);
+
+      buildReel();
+      const prize = weightedPrize(superSpin);
+      const items = [...reel.children];
+      const targetIndex = items.findIndex((item, index) => index > 34 && item.textContent.includes(prize.name));
+      const itemWidth = items[0].getBoundingClientRect().width + 10;
+      const centerOffset = spinWindow.getBoundingClientRect().width / 2 - itemWidth / 2;
+      const travel = -(targetIndex * itemWidth) + centerOffset;
+      const duration = superSpin ? 5900 : 3900;
+
+      reel.getAnimations().forEach((animation) => animation.cancel());
+      reel.style.transform = "translate3d(0,0,0)";
+      reel.animate([
+        { transform: "translate3d(0,0,0)", filter: "blur(0px)" },
+        { transform: `translate3d(${travel * .64}px,0,0)`, filter: "blur(2px)", offset: .58 },
+        { transform: `translate3d(${travel + 26}px,0,0)`, filter: "blur(.7px)", offset: .88 },
+        { transform: `translate3d(${travel - 8}px,0,0)`, filter: "blur(0px)", offset: .96 },
+        { transform: `translate3d(${travel}px,0,0)`, filter: "blur(0px)" }
+      ], { duration, easing: "cubic-bezier(.08,.72,.02,1)", fill: "forwards" });
+
+      const tick = setInterval(() => vibrate(8), superSpin ? 95 : 135);
+      setTimeout(() => {
+        clearInterval(tick);
+        state.spinning = false;
+        state.streak += 1;
+        state.balance += prize.value;
+        renderBalance();
+        updateInventory(prize);
+        addFeed(prize, superSpin);
+        resultName.textContent = `Выигрыш: ${prize.name}`;
+        resultMeta.textContent = `${superSpin ? "Супер спин" : "Обычный спин"} дал +${prize.value} tickets`;
+        setIcon(resultIcon, prize.icon);
+        flashScreen(superSpin || prize.rarity === "legendary");
+        burst(superSpin ? 190 : 86, superSpin ? 1.45 : 1);
+        showToast(prize.icon, "Выигрыш получен", `${prize.name} добавлен в гараж`);
+        vibrate(superSpin ? [72, 28, 78, 28, 110] : [46, 34, 76]);
+        document.querySelectorAll(".btn").forEach((button) => button.disabled = false);
+      }, duration + 80);
+    }
+
+    function spin(superSpin = state.mode === "super") {
+      if (state.spinning) return;
+      const price = superSpin ? 420 : 120;
+      if (state.balance < price) {
+        showToast("ticket", "Не хватает tickets", "Попробуй обычный спин или забери бонус");
+        vibrate([28, 35, 28]);
+        return;
+      }
+
+      state.spinning = true;
+      state.balance -= price;
+      renderBalance();
+      setMode(superSpin ? "super" : "normal");
+      document.querySelectorAll(".btn").forEach((button) => button.disabled = true);
+      spinWindow.classList.add("shake");
+      setTimeout(() => spinWindow.classList.remove("shake"), 420);
+      vibrate(superSpin ? [18, 28, 36, 28, 70] : [16, 26, 16]);
+
+      buildReels();
+      const prizesWon = reels.map(() => weightedPrize(superSpin));
+      const duration = superSpin ? 5900 : 3900;
+
+      reels.forEach((reel, index) => {
+        const items = [...reel.children];
+        const targetIndex = items.findIndex((item, itemIndex) => itemIndex > 34 && item.textContent.includes(prizesWon[index].name));
+        const itemHeight = items[0].getBoundingClientRect().height + 10;
+        const windowHeight = reel.parentElement.getBoundingClientRect().height;
+        const centerOffset = windowHeight / 2 - itemHeight / 2 - 64;
+        const travel = -(targetIndex * itemHeight) + centerOffset;
+
+        reel.getAnimations().forEach((animation) => animation.cancel());
+        reel.style.transform = "translate3d(0,0,0)";
+        reel.animate([
+          { transform: "translate3d(0,0,0)", filter: "blur(0px)" },
+          { transform: `translate3d(0,${travel * .62}px,0)`, filter: "blur(2.5px)", offset: .56 },
+          { transform: `translate3d(0,${travel + 30}px,0)`, filter: "blur(.8px)", offset: .88 },
+          { transform: `translate3d(0,${travel - 10}px,0)`, filter: "blur(0px)", offset: .96 },
+          { transform: `translate3d(0,${travel}px,0)`, filter: "blur(0px)" }
+        ], {
+          duration: duration + index * 420,
+          easing: "cubic-bezier(.08,.72,.02,1)",
+          fill: "forwards"
+        });
+      });
+
+      const tick = setInterval(() => vibrate(8), superSpin ? 95 : 135);
+      setTimeout(() => {
+        clearInterval(tick);
+        state.spinning = false;
+        state.streak += 1;
+        const total = prizesWon.reduce((sum, prize) => sum + prize.value, 0);
+        const best = prizesWon.reduce((top, prize) => prize.value > top.value ? prize : top, prizesWon[0]);
+        state.balance += total;
+        renderBalance();
+        prizesWon.forEach(updateInventory);
+        addFeed(best, superSpin);
+        resultName.textContent = `Выигрыш: ${superSpin ? "3 приза" : best.name}`;
+        resultMeta.textContent = `${superSpin ? "Супер спин" : "Обычный спин"} дал +${total} tickets`;
+        setIcon(resultIcon, best.icon);
+        flashScreen(superSpin || best.rarity === "legendary");
+        burst(superSpin ? 190 : 86, superSpin ? 1.45 : 1);
+        showWinModal(prizesWon, superSpin);
+        showToast(best.icon, "Выигрыш получен", `+${total} tickets добавлено в гараж`);
+        vibrate(superSpin ? [72, 28, 78, 28, 110] : [46, 34, 76]);
+        document.querySelectorAll(".btn").forEach((button) => button.disabled = false);
+      }, duration + 980);
+    }
+
+    function updateCountdown() {
+      const now = new Date();
+      const day = now.getDay();
+      const daysUntilSunday = (7 - day) % 7 || 7;
+      const end = new Date(now);
+      end.setDate(now.getDate() + daysUntilSunday);
+      end.setHours(21, 0, 0, 0);
+      const diff = Math.max(0, end - now);
+      const totalMinutes = Math.floor(diff / 60000);
+      $("days").textContent = String(Math.floor(totalMinutes / 1440)).padStart(2, "0");
+      $("hours").textContent = String(Math.floor((totalMinutes % 1440) / 60)).padStart(2, "0");
+      $("mins").textContent = String(totalMinutes % 60).padStart(2, "0");
+    }
+
+    document.querySelectorAll("[data-icon]").forEach((node) => {
+      node.innerHTML = icons[node.dataset.icon];
+    });
+
+    document.querySelectorAll(".tab").forEach((tab) => {
+      tab.addEventListener("click", () => setMode(tab.dataset.mode));
+    });
+
+    $("spinBtn").addEventListener("click", () => spin(false));
+    $("superBtn").addEventListener("click", () => spin(true));
+    $("heroSpin").addEventListener("click", () => {
+      $("spins").scrollIntoView({ behavior: "smooth" });
+      setTimeout(() => spin(false), 340);
+    });
+    $("heroSuper").addEventListener("click", () => {
+      $("spins").scrollIntoView({ behavior: "smooth" });
+      setTimeout(() => spin(true), 340);
+    });
+    $("closeWin").addEventListener("click", hideWinModal);
+    $("againWin").addEventListener("click", () => {
+      hideWinModal();
+      setTimeout(() => spin(state.mode === "super"), 180);
+    });
+    $("weeklyBtn").addEventListener("click", () => {
+      showToast("cup", "Ты в розыгрыше недели", "Главный дроп: Steam-ключ Forza Horizon 6");
+      burst(120, 1.15);
+      vibrate([38, 18, 62]);
+    });
+
+    document.querySelectorAll(".bottom-nav button").forEach((button) => {
+      button.addEventListener("click", () => {
+        document.querySelectorAll(".bottom-nav button").forEach((item) => item.classList.remove("active"));
+        button.classList.add("active");
+        $(button.dataset.jump).scrollIntoView({ behavior: "smooth", block: "start" });
+        vibrate(10);
+      });
+    });
+
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+    buildReels();
+    renderBalance();
+    updateInventory();
+    setIcon(resultIcon, "spin");
+    setIcon($("streakIcon"), "bolt");
+    [prizes[2], prizes[5], prizes[0], prizes[4]].forEach((prize, index) => {
+      setTimeout(() => addFeed(prize, index % 2 === 1), index * 70);
+    });
+    updateCountdown();
+    setInterval(updateCountdown, 30000);
+    drawParticles();
+    setTimeout(() => {
+      showToast("spin", "Барабан прибыл", "TeleFest готов к первому спину");
+      burst(64, .85);
+      vibrate([22, 18, 40]);
+    }, 780);
+  </script>
+</body>
+</html>
