@@ -13,9 +13,13 @@ if (tg) {
   function applyTelegramSafeArea() {
     const contentInsets = tg.contentSafeAreaInset;
     const safeInsets = tg.safeAreaInset;
+    const rawTopInset = Math.max(contentInsets?.top || 0, safeInsets?.top || 0);
+    const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const hasModernIphoneSafeArea = isIos && rawTopInset >= 44;
+    const fullscreenControlsTopInset = hasModernIphoneSafeArea ? 88 : 0;
 
     const insets = {
-      top: Math.max(contentInsets?.top || 0, safeInsets?.top || 0),
+      top: Math.max(rawTopInset, fullscreenControlsTopInset),
       right: Math.max(contentInsets?.right || 0, safeInsets?.right || 0),
       bottom: Math.max(contentInsets?.bottom || 0, safeInsets?.bottom || 0),
       left: Math.max(contentInsets?.left || 0, safeInsets?.left || 0),
