@@ -1,0 +1,431 @@
+/* ==========================================================================
+   Design Tokens & System Config
+   ========================================================================== */
+:root {
+  --bg-primary: #0a0a0d;
+  --bg-secondary: rgba(20, 20, 25, 0.6);
+  --border-glow: rgba(255, 255, 255, 0.08);
+  --accent-color: #ffd23f; /* Gold accent matching gems theme */
+  --accent-gradient: linear-gradient(135deg, #ffd23f 0%, #ff9f1c 100%);
+  --glow-color-1: rgba(99, 102, 241, 0.15); /* Indigo glow */
+  --glow-color-2: rgba(236, 72, 153, 0.12); /* Pink glow */
+  
+  --font-display: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-body: 'Plus Jakarta Sans', sans-serif;
+  
+  --transition-smooth: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  --transition-spring: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Reset & Base Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: #f3f4f6;
+  font-family: var(--font-body);
+  overflow: hidden;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+}
+
+/* Ambient Radial Glows (Background Decoration) */
+.ambient-glow {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(100px);
+  z-index: 0;
+}
+
+.glow-1 {
+  width: 300px;
+  height: 300px;
+  background: var(--glow-color-1);
+  top: -50px;
+  left: -50px;
+}
+
+.glow-2 {
+  width: 350px;
+  height: 350px;
+  background: var(--glow-color-2);
+  bottom: 10%;
+  right: -80px;
+}
+
+/* App Container (Mobile First viewport constraints) */
+.app-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  margin: 0 auto;
+  z-index: 1;
+  background: rgba(10, 10, 13, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
+  border-left: 1px solid rgba(255, 255, 255, 0.03);
+  border-right: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+/* ==========================================================================
+   Header Component & Gems Counter (Squircle)
+   ========================================================================== */
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  width: 100%;
+  z-index: 10;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+}
+
+.brand-logo {
+  display: block;
+  width: auto;
+  height: 25px;
+  object-fit: contain;
+}
+
+/* Gems Counter Block with Squircle Masking & Borders */
+.gems-block {
+  position: relative;
+  width: 96px;
+  height: 38px;
+  cursor: pointer;
+  transform: translate3d(0, 0, 0);
+  transition: var(--transition-spring);
+}
+
+.gems-block:active {
+  transform: scale(0.95) translate3d(0, 0, 0);
+}
+
+/* Vector overlay for squircle bg & border */
+.gems-block-inner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 19px;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.gems-block-bg-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.gems-bg {
+  fill: #27241b; /* Dark charcoal with a subtle warm yellow/gold tint */
+  transition: var(--transition-smooth);
+}
+
+.gems-block:hover .gems-bg {
+  fill: #312d20; /* Slightly warmer gold-charcoal on hover */
+}
+
+.gems-block-border-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.gems-border {
+  fill: none;
+  stroke: url(#gemsBorderGradient); /* Gradient stroke for non-uniform lighting sweep */
+  stroke-width: 1.6px;
+  filter: drop-shadow(0 0 1.5px rgba(255, 210, 63, 0.2));
+  transition: var(--transition-smooth);
+}
+
+.gems-block:hover .gems-border {
+  filter: drop-shadow(0 0 4px rgba(255, 210, 63, 0.4));
+}
+
+/* Shimmer overlay animation clipped to gems container */
+.shimmer-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 210, 63, 0) 0%,
+    rgba(255, 210, 63, 0.08) 50%,
+    rgba(255, 210, 63, 0) 100%
+  );
+  pointer-events: none;
+  z-index: 2; /* Above background but below content */
+  animation: gemsShimmer 4s infinite cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+@keyframes gemsShimmer {
+  0% {
+    transform: translateX(-100%) skewX(-20deg);
+  }
+  30% {
+    transform: translateX(100%) skewX(-20deg);
+  }
+  100% {
+    transform: translateX(100%) skewX(-20deg);
+  }
+}
+
+/* Gems Content Placement */
+.gems-content {
+  position: relative;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px; /* Reduced gap between icon and number */
+  width: 100%;
+  height: 100%;
+  padding: 0 10px; /* Adjusted padding to fit the smaller container */
+  box-sizing: border-box;
+}
+
+.gems-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.25));
+  animation: floatGem 3s ease-in-out infinite;
+}
+
+.gems-amount {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 15px;
+  color: #e4e4e7; /* Match the off-white color in the photo */
+  letter-spacing: -0.2px;
+}
+
+
+/* Floating animation for the gem icon inside header */
+@keyframes floatGem {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-1.5px);
+  }
+}
+
+/* ==========================================================================
+   Main Content Area
+   ========================================================================== */
+.app-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+  z-index: 5;
+}
+
+.welcome-card {
+  width: 100%;
+  padding: 32px 24px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 28px; /* Clean rounded card */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  transition: var(--transition-smooth);
+}
+
+.welcome-card:hover {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.welcome-title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 32px;
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, #ffffff 0%, #d1d5db 50%, #9ca3af 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.welcome-subtitle {
+  font-size: 14px;
+  color: #9ca3af;
+  line-height: 1.5;
+  margin-bottom: 32px;
+}
+
+/* Premium Button Styling */
+.action-btn-container {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.main-action-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 28px;
+  border: none;
+  outline: none;
+  background: var(--accent-gradient);
+  color: #000000;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 16px;
+  border-radius: 16px;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(255, 159, 28, 0.3);
+  transition: var(--transition-spring);
+  overflow: hidden;
+}
+
+.main-action-btn:active {
+  transform: scale(0.96);
+  box-shadow: 0 3px 10px rgba(255, 159, 28, 0.2);
+}
+
+.main-action-btn::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -50%;
+  width: 200%;
+  height: 100%;
+  background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0) 100%);
+  transform: skewX(-25deg);
+  transition: 0.75s;
+  animation: shine 3s infinite linear;
+}
+
+@keyframes shine {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+.btn-sparkle {
+  font-size: 18px;
+  transition: var(--transition-spring);
+}
+
+.main-action-btn:hover .btn-sparkle {
+  transform: rotate(20deg) scale(1.2);
+}
+
+/* ==========================================================================
+   Navigation Bar (Footer)
+   ========================================================================== */
+.app-nav {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 12px 10px;
+  background: rgba(15, 15, 20, 0.85);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  width: 100%;
+  z-index: 10;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px)); /* Safe spacing for iPhones */
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  color: #71717a;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  width: 70px;
+}
+
+.nav-icon {
+  width: 22px;
+  height: 22px;
+  transition: var(--transition-smooth);
+}
+
+.nav-item span {
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.nav-item.active {
+  color: #ffffff;
+}
+
+.nav-item.active .nav-icon {
+  color: var(--accent-color);
+  transform: translateY(-2px);
+  filter: drop-shadow(0 2px 8px rgba(255, 210, 63, 0.3));
+}
+
+.nav-item:active {
+  transform: scale(0.9);
+}
+
+/* ==========================================================================
+   Tab Page Switching Visibility
+   ========================================================================== */
+.tab-page {
+  display: none;
+  width: 100%;
+  height: 100%;
+  animation: fadeIn 0.25s cubic-bezier(0.215, 0.610, 0.355, 1) forwards;
+}
+
+.tab-page.active {
+  display: flex;
+  flex-direction: column;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

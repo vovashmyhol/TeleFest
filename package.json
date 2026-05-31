@@ -1,0 +1,14 @@
+{
+  "name": "tele-fest",
+  "version": "1.0.0",
+  "description": "Tele Fest - Telegram Mini App",
+  "main": "index.html",
+  "scripts": {
+    "dev": "vite --host",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^5.2.0"
+  }
+}
