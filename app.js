@@ -9,6 +9,31 @@ if (tg) {
   // Set theme properties
   tg.setHeaderColor('#0a0a0d');
   tg.setBackgroundColor('#0a0a0d');
+
+  function applyTelegramSafeArea() {
+    const contentInsets = tg.contentSafeAreaInset;
+    const safeInsets = tg.safeAreaInset;
+
+    const insets = {
+      top: Math.max(contentInsets?.top || 0, safeInsets?.top || 0),
+      right: Math.max(contentInsets?.right || 0, safeInsets?.right || 0),
+      bottom: Math.max(contentInsets?.bottom || 0, safeInsets?.bottom || 0),
+      left: Math.max(contentInsets?.left || 0, safeInsets?.left || 0),
+    };
+
+    document.body.style.paddingTop = `${insets.top}px`;
+    document.body.style.paddingRight = `${insets.right}px`;
+    document.body.style.paddingBottom = `${insets.bottom}px`;
+    document.body.style.paddingLeft = `${insets.left}px`;
+  }
+
+  applyTelegramSafeArea();
+  tg.onEvent?.('safeAreaChanged', applyTelegramSafeArea);
+  tg.onEvent?.('contentSafeAreaChanged', applyTelegramSafeArea);
+  tg.onEvent?.('safe_area_changed', applyTelegramSafeArea);
+  tg.onEvent?.('content_safe_area_changed', applyTelegramSafeArea);
+  tg.onEvent?.('fullscreenChanged', applyTelegramSafeArea);
+  tg.onEvent?.('fullscreen_changed', applyTelegramSafeArea);
 }
 
 // App State
