@@ -27,8 +27,9 @@ if (tg) {
 
     document.body.style.paddingTop = `${insets.top}px`;
     document.body.style.paddingRight = `${insets.right}px`;
-    document.body.style.paddingBottom = `${insets.bottom}px`;
+    document.body.style.paddingBottom = '0px';
     document.body.style.paddingLeft = `${insets.left}px`;
+    document.documentElement.style.setProperty('--telegram-safe-area-bottom', `${insets.bottom}px`);
   }
 
   applyTelegramSafeArea();
