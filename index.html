@@ -61,7 +61,121 @@
     <!-- Main Content Area -->
     <main class="app-main">
       <div id="tab-home" class="tab-page active">
-        <!-- Main page content (currently empty) -->
+        <!-- View Container to switch between Photo Banner and Cases Grid -->
+        <div class="home-view-container">
+          
+          <!-- View 1: Main Photo Card (visible by default) -->
+          <div class="photo-view" id="photoView">
+            <!-- Widescreen Banner Container -->
+            <div class="photo-card-wrapper">
+              <div class="photo-card-rect" id="photoCard">
+                <!-- Demo image using forzaBnner -->
+                <img src="forzaBnner" alt="Featured Photo" class="photo-img">
+                
+                <!-- Subtle grey iOS-style border overlay -->
+                <div class="photo-card-border-overlay"></div>
+                <div class="photo-card-shimmer"></div>
+              </div>
+            </div>
+            <p class="photo-hint">Нажмите на фото, чтобы открыть кейсы</p>
+          </div>
+          
+          <!-- View 2: Cases Grid (hidden by default) -->
+          <div class="cases-view" id="casesView">
+            <div class="cases-header">
+              <button class="back-btn" id="backToPhotoBtn">
+                <svg class="back-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="15 18 9 12 15 6"/>
+                </svg>
+                <span>Назад</span>
+              </button>
+              <h1 class="tab-title" style="margin-left: 12px; font-size: 20px; margin-bottom: 0;">Выбор кейса</h1>
+            </div>
+            
+            <!-- Cases Grid (3x2) -->
+            <div class="cases-grid">
+              <!-- Case 1 (Purple Gradient) -->
+              <div class="case-card case-card-1">
+                <div class="case-photo-container">
+                  <!-- Для вставки фото кейса замените SVG ниже на: <img src="путь_к_фото" class="case-img"> -->
+                  <svg class="case-placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M21 8v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8m18 0l-9-5-9 5m18 0l-9 5-9-5m9 5v8" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+                <div class="case-price-badge">
+                  <img src="stars-DBKMczxe.png" alt="Stars" class="star-icon">
+                  <span class="price-val">50</span>
+                </div>
+              </div>
+
+              <!-- Case 2 (Blue Gradient) -->
+              <div class="case-card case-card-2">
+                <div class="case-photo-container">
+                  <svg class="case-placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M21 8v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8m18 0l-9-5-9 5m18 0l-9 5-9-5m9 5v8" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+                <div class="case-price-badge">
+                  <img src="stars-DBKMczxe.png" alt="Stars" class="star-icon">
+                  <span class="price-val">100</span>
+                </div>
+              </div>
+
+              <!-- Case 3 (Teal Gradient) -->
+              <div class="case-card case-card-3">
+                <div class="case-photo-container">
+                  <svg class="case-placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M21 8v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8m18 0l-9-5-9 5m18 0l-9 5-9-5m9 5v8" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+                <div class="case-price-badge">
+                  <img src="stars-DBKMczxe.png" alt="Stars" class="star-icon">
+                  <span class="price-val">150</span>
+                </div>
+              </div>
+
+              <!-- Case 4 (Amber Gradient) -->
+              <div class="case-card case-card-4">
+                <div class="case-photo-container">
+                  <svg class="case-placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M21 8v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8m18 0l-9-5-9 5m18 0l-9 5-9-5m9 5v8" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+                <div class="case-price-badge">
+                  <img src="stars-DBKMczxe.png" alt="Stars" class="star-icon">
+                  <span class="price-val">200</span>
+                </div>
+              </div>
+
+              <!-- Case 5 (Ruby Gradient) -->
+              <div class="case-card case-card-5">
+                <div class="case-photo-container">
+                  <svg class="case-placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M21 8v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8m18 0l-9-5-9 5m18 0l-9 5-9-5m9 5v8" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+                <div class="case-price-badge">
+                  <img src="stars-DBKMczxe.png" alt="Stars" class="star-icon">
+                  <span class="price-val">250</span>
+                </div>
+              </div>
+
+              <!-- Case 6 (Grey Gradient) -->
+              <div class="case-card case-card-6">
+                <div class="case-photo-container">
+                  <svg class="case-placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M21 8v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8m18 0l-9-5-9 5m18 0l-9 5-9-5m9 5v8" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+                <div class="case-price-badge">
+                  <img src="stars-DBKMczxe.png" alt="Stars" class="star-icon">
+                  <span class="price-val">300</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+        </div>
       </div>
       <div id="tab-quests" class="tab-page">
         <!-- Quests page content (currently empty) -->
@@ -96,6 +210,72 @@
         <span>Друзья</span>
       </div>
     </footer>
+  </div>
+
+  <!-- Bottom Sheet Confirmation for Case Opening -->
+  <div class="bottom-sheet-backdrop" id="confirmBackdrop"></div>
+  <div class="bottom-sheet" id="confirmBottomSheet">
+    <div class="sheet-pull-bar"></div>
+    <div class="sheet-content">
+      <div class="sheet-case-photo" id="sheetCasePhoto">
+        <!-- Dynamically set inside JS -->
+      </div>
+      <h3 class="sheet-title">Открыть кейс?</h3>
+      <p class="sheet-description">С вашего баланса будет списано <span id="sheetCasePrice">0</span> звёзд</p>
+      
+      <div class="sheet-actions">
+        <button class="sheet-btn confirm-btn" id="confirmOpenBtn">Открыть</button>
+        <button class="sheet-btn cancel-btn" id="confirmCancelBtn">Отмена</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fullscreen Vertical Roulette Spinner Overlay -->
+  <div class="fullscreen-overlay" id="rouletteOverlay">
+
+    <p class="roulette-title">Крутим барабан…</p>
+
+    <!-- Full-width reel viewport — edge to edge -->
+    <div class="roulette-viewport" id="rouletteViewport">
+      <div class="roulette-reel" id="rouletteReel"></div>
+      <!-- Gold frame at center -->
+      <div class="roulette-selection-frame"></div>
+      <!-- Top/bottom fades -->
+      <div class="roulette-fade roulette-fade--top"></div>
+      <div class="roulette-fade roulette-fade--bottom"></div>
+    </div>
+
+    <!-- Arrows absolutely centred over the viewport -->
+    <div class="roulette-arrow arrow-left">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <polyline points="9 6 15 12 9 18"/>
+      </svg>
+    </div>
+    <div class="roulette-arrow arrow-right">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <polyline points="15 6 9 12 15 18"/>
+      </svg>
+    </div>
+
+    <button class="skip-btn" id="skipAnimBtn">Пропустить анимацию</button>
+  </div>
+
+  <!-- Fullscreen Win Screen Overlay -->
+  <div class="fullscreen-overlay" id="winOverlay">
+    <!-- Fireworks element particles -->
+    <div class="fireworks-container" id="fireworksContainer"></div>
+    
+    <div class="win-content">
+      <div class="win-sparkle-glow"></div>
+      <div class="win-photo-wrapper" id="winPhotoWrapper">
+        <img src="gems.webp" alt="Prize" class="win-prize-img" id="winPrizeImg">
+      </div>
+      <h2 class="win-title">Вы выиграли!</h2>
+      <h3 class="win-prize-name" id="winPrizeName">Супер-Кейс</h3>
+      <p class="win-description" id="winPrizeDesc">Награда успешно добавлена на ваш баланс</p>
+      
+      <button class="collect-btn" id="collectBtn">Забрать</button>
+    </div>
   </div>
 
   <script src="app.js"></script>

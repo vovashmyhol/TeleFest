@@ -140,3 +140,288 @@ gemsBlock.addEventListener('click', () => {
     }, 200);
   }
 });
+
+// Toggle Views between Photo Card and Cases Grid
+const photoCard = document.getElementById('photoCard');
+const photoView = document.getElementById('photoView');
+const casesView = document.getElementById('casesView');
+const backToPhotoBtn = document.getElementById('backToPhotoBtn');
+
+if (photoCard && photoView && casesView && backToPhotoBtn) {
+  photoCard.addEventListener('click', () => {
+    triggerHaptic('light');
+    photoView.classList.add('hidden-view');
+    casesView.classList.add('active-view');
+  });
+
+  backToPhotoBtn.addEventListener('click', () => {
+    triggerHaptic('light');
+    casesView.classList.remove('active-view');
+    photoView.classList.remove('hidden-view');
+  });
+}
+
+// ==========================================================================
+// Case Opening Gameplay & Animations
+// ==========================================================================
+const possiblePrizes = [
+  { name: "100 Gems", img: "gems.webp", desc: "Куча драгоценных камней для вашего баланса!" },
+  { name: "500 Gems", img: "gems.webp", desc: "Огромный мешок с сверкающими гемами!" },
+  { name: "Telegram Star", img: "stars-DBKMczxe.png", desc: "Официальная золотая звезда Telegram." },
+  { name: "TeleFest WebApp", img: "TeleFest.webp", desc: "Официальный логотип-награда TeleFest." },
+  { name: "1,000 Gems", img: "gems.webp", desc: "Невероятное богатство драгоценных камней!" },
+  { name: "Супер-Приз", img: "forzaBnner", desc: "Легендарный секретный подарок от организаторов." }
+];
+
+const caseCards = document.querySelectorAll('.case-card');
+const confirmBackdrop = document.getElementById('confirmBackdrop');
+const confirmBottomSheet = document.getElementById('confirmBottomSheet');
+const sheetCasePhoto = document.getElementById('sheetCasePhoto');
+const sheetCasePrice = document.getElementById('sheetCasePrice');
+const confirmCancelBtn = document.getElementById('confirmCancelBtn');
+const confirmOpenBtn = document.getElementById('confirmOpenBtn');
+
+const rouletteOverlay = document.getElementById('rouletteOverlay');
+const rouletteReel = document.getElementById('rouletteReel');
+const skipAnimBtn = document.getElementById('skipAnimBtn');
+const winOverlay = document.getElementById('winOverlay');
+const winPrizeImg = document.getElementById('winPrizeImg');
+const winPrizeName = document.getElementById('winPrizeName');
+const winPrizeDesc = document.getElementById('winPrizeDesc');
+const winPhotoWrapper = document.getElementById('winPhotoWrapper');
+const collectBtn = document.getElementById('collectBtn');
+
+let selectedCase = null;
+let activeTickCancel = null;
+let spinTimeout = null;
+let winningPrize = null;
+
+// Close bottom confirmation sheet
+function closeBottomSheet() {
+  confirmBackdrop.classList.remove('active');
+  confirmBottomSheet.classList.remove('active');
+}
+
+// Hook click events on case cards to open confirmation
+caseCards.forEach((card, index) => {
+  card.addEventListener('click', () => {
+    triggerHaptic('medium');
+    selectedCase = {
+      index: index + 1,
+      price: card.querySelector('.price-val').textContent,
+      gradientClass: `case-card-${index + 1}`,
+      photoHTML: card.querySelector('.case-photo-container').innerHTML
+    };
+    
+    // Populate bottom sheet confirmation
+    sheetCasePhoto.innerHTML = selectedCase.photoHTML;
+    sheetCasePhoto.className = `sheet-case-photo ${selectedCase.gradientClass}`;
+    sheetCasePrice.textContent = selectedCase.price;
+    
+    // Slide up bottom sheet
+    confirmBackdrop.classList.add('active');
+    confirmBottomSheet.classList.add('active');
+  });
+});
+
+// Close bottom sheet events
+confirmBackdrop.addEventListener('click', closeBottomSheet);
+confirmCancelBtn.addEventListener('click', () => {
+  triggerHaptic('light');
+  closeBottomSheet();
+});
+
+// Confirm Open Case Button clicked
+confirmOpenBtn.addEventListener('click', () => {
+  if (!selectedCase) return;
+
+  closeBottomSheet();
+  triggerHaptic('heavy');
+
+  // Determine prize randomly
+  winningPrize = possiblePrizes[Math.floor(Math.random() * possiblePrizes.length)];
+
+  // Show fullscreen overlay first, then build reel after browser has rendered it
+  rouletteOverlay.classList.add('active');
+
+  // Double rAF = 2 frames = overlay is visible + laid out before we read dimensions
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    const ITEM_H  = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--roulette-item-height')) || 152;
+    const TOTAL   = 60;   // total items in reel
+    const WIN_IDX = 52;   // index of winning item
+    const SPIN_MS = 8000;
+
+    // Build reel DOM
+    rouletteReel.innerHTML = '';
+    rouletteReel.style.transition = 'none';
+    rouletteReel.style.transform  = 'translateY(0)';
+
+    const items = [];
+    for (let i = 0; i < TOTAL; i++) {
+      const prize = (i === WIN_IDX)
+        ? winningPrize
+        : possiblePrizes[Math.floor(Math.random() * possiblePrizes.length)];
+
+      const div = document.createElement('div');
+      div.className = 'roulette-item';
+      div.innerHTML = `
+        <img src="${prize.img}" class="roulette-item-img" alt="${prize.name}">
+        <span class="roulette-item-name">${prize.name}</span>
+      `;
+      rouletteReel.appendChild(div);
+      items.push(div);
+    }
+
+    // Force reflow — reel has real dimensions now
+    rouletteReel.offsetHeight;
+
+    // Compute viewport centre
+    const viewport   = document.getElementById('rouletteViewport');
+    const vpH        = viewport.clientHeight || window.innerHeight * 0.75;
+    const centreOfVp = vpH / 2;
+
+    // translateY that places WIN_IDX item's centre at viewport's centre
+    // reel starts at translateY(0) so item[0].top = 0
+    const targetY = centreOfVp - (WIN_IDX * ITEM_H + ITEM_H / 2);
+
+    // Kick off the CSS transition
+    rouletteReel.style.transition = `transform ${SPIN_MS}ms cubic-bezier(0.03, 0.9, 0.2, 1)`;
+    rouletteReel.style.transform  = `translateY(${targetY}px)`;
+
+    // rAF loop — highlight the item currently at centre
+    let rafId   = null;
+    let lastIdx = -1;
+
+    function highlightCentre() {
+      const matrix    = new DOMMatrix(getComputedStyle(rouletteReel).transform);
+      const currentY  = matrix.m42;
+      const centreInReel = centreOfVp - currentY;
+      const idx       = Math.round((centreInReel - ITEM_H / 2) / ITEM_H);
+      const clamped   = Math.max(0, Math.min(TOTAL - 1, idx));
+
+      if (clamped !== lastIdx) {
+        if (lastIdx >= 0 && items[lastIdx]) items[lastIdx].classList.remove('roulette-item--active');
+        if (items[clamped])                 items[clamped].classList.add('roulette-item--active');
+        lastIdx = clamped;
+      }
+
+      rafId = requestAnimationFrame(highlightCentre);
+    }
+    rafId = requestAnimationFrame(highlightCentre);
+
+    // Haptic ticks
+    activeTickCancel = startHapticTicks();
+
+    // End after spin completes
+    spinTimeout = setTimeout(() => {
+      cancelAnimationFrame(rafId);
+      endSpinAndShowWin();
+    }, SPIN_MS);
+  }));
+});
+
+// Skip animation button click
+skipAnimBtn.addEventListener('click', () => {
+  triggerHaptic('light');
+  endSpinAndShowWin();
+});
+
+// Decelerating haptic ticks helper
+function startHapticTicks() {
+  let delay    = 30;
+  let maxDelay = 600;
+  let timerId  = null;
+
+  function tick() {
+    triggerHaptic('light');
+    delay = delay * 1.07;
+    if (delay < maxDelay) {
+      timerId = setTimeout(tick, delay);
+    }
+  }
+  tick();
+  return () => { if (timerId) clearTimeout(timerId); };
+}
+
+// End spinner and open Win overlay
+function endSpinAndShowWin() {
+  if (activeTickCancel) activeTickCancel();
+  if (spinTimeout) clearTimeout(spinTimeout);
+  
+  rouletteOverlay.classList.remove('active');
+  
+  // Set winning screen details
+  winPrizeImg.src = winningPrize.img;
+  winPrizeName.textContent = winningPrize.name;
+  winPrizeDesc.textContent = winningPrize.desc;
+  winPhotoWrapper.className = `win-photo-wrapper`; // reset class name
+  
+  // Open win screen
+  winOverlay.classList.add('active');
+  triggerHaptic('heavy');
+  
+  // Exploding fireworks confetti
+  spawnConfetti();
+}
+
+// Fireworks/confetti generator
+function spawnConfetti() {
+  const container = document.getElementById('fireworksContainer');
+  if (!container) return;
+  container.innerHTML = '';
+  const colors = ['#ffd23f', '#ff9f1c', '#a855f7', '#3b82f6', '#14b8a6', '#ef4444'];
+  
+  for (let i = 0; i < 45; i++) {
+    const particle = document.createElement('div');
+    particle.className = 'confetti-particle';
+    
+    // Physics explosion trajectory
+    const angle = Math.random() * Math.PI * 2;
+    const velocity = 90 + Math.random() * 140;
+    const x = Math.cos(angle) * velocity;
+    const y = Math.sin(angle) * velocity - 60; // arching offset
+    
+    particle.style.setProperty('--tx', `${x}px`);
+    particle.style.setProperty('--ty', `${y}px`);
+    particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+    
+    // Shape/Size
+    const size = 6 + Math.random() * 8;
+    particle.style.width = `${size}px`;
+    particle.style.height = `${size}px`;
+    particle.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    particle.style.transform = `rotate(${Math.random() * 360}deg)`;
+    
+    container.appendChild(particle);
+  }
+}
+
+// Collect Button: dive down animation, fade out win overlay, and update balance
+collectBtn.addEventListener('click', () => {
+  triggerHaptic('medium');
+  
+  // 1. Gift dive down animation
+  winPhotoWrapper.classList.add('dive-down');
+  
+  // 2. Smoothly fade out overlay backdrop
+  setTimeout(() => {
+    winOverlay.classList.add('fade-out');
+  }, 120);
+  
+  // 3. Close screens and roll balance increment
+  setTimeout(() => {
+    winOverlay.classList.remove('active');
+    winOverlay.classList.remove('fade-out');
+    winPhotoWrapper.classList.remove('dive-down');
+    
+    // If user won Gems, animate incrementing header balance
+    if (winningPrize.name.includes("Gems")) {
+      const amount = parseInt(winningPrize.name.replace(/[^0-9]/g, ''));
+      if (!isNaN(amount)) {
+        animateGemsCount(gems + amount);
+      }
+    }
+    
+    selectedCase = null;
+  }, 650);
+});
