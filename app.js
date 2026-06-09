@@ -5,6 +5,7 @@ if (tg) {
   // Let Telegram know the app is ready and expand it to full viewport height
   tg.ready();
   tg.expand();
+  tg.disableVerticalSwipes?.();
   
   // Set theme properties
   tg.setHeaderColor('#0a0a0d');
@@ -39,6 +40,14 @@ if (tg) {
   tg.onEvent?.('content_safe_area_changed', applyTelegramSafeArea);
   tg.onEvent?.('fullscreenChanged', applyTelegramSafeArea);
   tg.onEvent?.('fullscreen_changed', applyTelegramSafeArea);
+  tg.onEvent?.('viewportChanged', () => {
+    tg.expand();
+    tg.disableVerticalSwipes?.();
+  });
+  tg.onEvent?.('viewport_changed', () => {
+    tg.expand();
+    tg.disableVerticalSwipes?.();
+  });
 }
 
 // App State
@@ -195,6 +204,7 @@ let selectedCase = null;
 let activeTickCancel = null;
 let spinTimeout = null;
 let winningPrize = null;
+let isCollectingPrize = false;
 
 // Close bottom confirmation sheet
 function closeBottomSheet() {
@@ -404,21 +414,28 @@ function spawnConfetti() {
 
 // Collect Button: dive down animation, fade out win overlay, and update balance
 collectBtn.addEventListener('click', () => {
+  if (isCollectingPrize) return;
+  isCollectingPrize = true;
+  collectBtn.disabled = true;
   triggerHaptic('medium');
   
   // 1. Gift dive down animation
   winPhotoWrapper.classList.add('dive-down');
+  setTimeout(() => triggerHaptic('light'), 160);
+  setTimeout(() => triggerHaptic('medium'), 340);
   
   // 2. Smoothly fade out overlay backdrop
   setTimeout(() => {
     winOverlay.classList.add('fade-out');
-  }, 120);
+  }, 320);
   
   // 3. Close screens and roll balance increment
   setTimeout(() => {
     winOverlay.classList.remove('active');
     winOverlay.classList.remove('fade-out');
     winPhotoWrapper.classList.remove('dive-down');
+    collectBtn.disabled = false;
+    isCollectingPrize = false;
     
     // If user won Gems, animate incrementing header balance
     if (winningPrize.name.includes("Gems")) {
@@ -429,5 +446,5 @@ collectBtn.addEventListener('click', () => {
     }
     
     selectedCase = null;
-  }, 650);
+  }, 980);
 });
