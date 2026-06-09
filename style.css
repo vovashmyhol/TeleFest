@@ -1183,16 +1183,16 @@ body {
   align-items: center;
   justify-content: center;
   gap: 10px;
-  transition: opacity 0.15s ease, transform 0.15s ease;
-  /* default: slightly faded + scaled down */
-  opacity: 0.32;
-  transform: scale(0.76);
+  transition:
+    opacity 0.28s cubic-bezier(0.22, 0.75, 0.25, 1),
+    transform 0.28s cubic-bezier(0.22, 0.75, 0.25, 1);
+  opacity: var(--roulette-item-opacity, 0.34);
+  transform: scale(var(--roulette-item-scale, 0.84));
 }
 
-/* Centre item highlighted by JS adding .roulette-item--active */
 .roulette-item--active {
-  opacity: 1 !important;
-  transform: scale(1.14) !important;
+  opacity: var(--roulette-item-opacity, 1);
+  transform: scale(var(--roulette-item-scale, 1.14));
 }
 
 .roulette-item-img {

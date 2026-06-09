@@ -289,8 +289,7 @@ confirmOpenBtn.addEventListener('click', () => {
     rouletteReel.style.transform  = `translateY(${targetY}px)`;
 
     // rAF loop — highlight the item currently at centre
-    let rafId   = null;
-    let lastIdx = -1;
+    let rafId = null;
 
     function highlightCentre() {
       const matrix    = new DOMMatrix(getComputedStyle(rouletteReel).transform);
@@ -299,11 +298,18 @@ confirmOpenBtn.addEventListener('click', () => {
       const idx       = Math.round((centreInReel - ITEM_H / 2) / ITEM_H);
       const clamped   = Math.max(0, Math.min(TOTAL - 1, idx));
 
-      if (clamped !== lastIdx) {
-        if (lastIdx >= 0 && items[lastIdx]) items[lastIdx].classList.remove('roulette-item--active');
-        if (items[clamped])                 items[clamped].classList.add('roulette-item--active');
-        lastIdx = clamped;
-      }
+      items.forEach((item, itemIdx) => {
+        const itemCentre = itemIdx * ITEM_H + ITEM_H / 2;
+        const distance = Math.abs(itemCentre - centreInReel) / ITEM_H;
+        const proximity = Math.max(0, 1 - Math.min(distance / 3.6, 1));
+        const focus = proximity * proximity * (3 - 2 * proximity);
+        const scale = 0.84 + focus * 0.3;
+        const opacity = 0.3 + focus * 0.7;
+
+        item.classList.toggle('roulette-item--active', itemIdx === clamped);
+        item.style.setProperty('--roulette-item-scale', scale.toFixed(3));
+        item.style.setProperty('--roulette-item-opacity', opacity.toFixed(3));
+      });
 
       rafId = requestAnimationFrame(highlightCentre);
     }
